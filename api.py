@@ -32,6 +32,7 @@ import pandas as pd
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
+#  instantion of the application
 app = Flask(__name__)
 
 # -----------------------------------------------------------------------
@@ -58,7 +59,8 @@ app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": [
     "http://localhost:5000", "http://127.0.0.1:5000",
     "http://localhost:5500", "http://127.0.0.1:5500",
-    "https://localhost:443", "https://127.0.0.1:443",
+    "https://localhost:443", "https://"
+                             "127.0.0.1:443",
     "http://localhost:63342",  # VS Code Live Server extension
     "null",  # allows opening a frontend .html file directly (file://) with no web server
 ]}})
