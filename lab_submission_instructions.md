@@ -4,29 +4,55 @@
 
 **Name of the team on GitHub Classroom:**
 
-**Member 1:**
 
-| **Details**                                                                                                                           | **Comment** |
-|:--------------------------------------------------------------------------------------------------------------------------------------|:------------|
-| **Student ID**                                                                                                                        | 170214            |
-| **Name**                                                                                                                              |  Grace Chelangat         |
-| **What part of the lab did you personally<br/>contribute to (provide a link to the<br/>branch(es)), and what did you learn from it?** | ### Personal Contribution
+## Member 1: Personal Contribution
+
+| **Detail** | **Information** |
+|---|---|
+| **Student ID** | 170214 |
+| **Name** | Grace Chelangat |
+| **Role** | Regression Model Serving |
+
+### 1. Personal Contribution
 
 I was responsible for **Member 1 – Regression Model Serving** in the Business Intelligence Serving ML Models lab.
 
-My contribution involved integrating the trained retail sales regression model into the shared Flask API. I ensured that the API could load the saved model, accept the required 13 input features, process the data and return a predicted daily sales revenue in Kenyan Shillings.
+My main contribution involved integrating the trained retail sales regression model into the shared Flask API. Specifically, I:
 
-I also tested the `/predict/regression` endpoint using Flask's test client and resolved a model compatibility issue by ensuring the regression model was saved using the same scikit-learn version specified in the project's requirements. The endpoint successfully returned HTTP 200 with a predicted daily sales revenue of KES 636,875.52.
+- Integrated the saved retail sales regression model into the Flask application.
+- Ensured the API could load the trained model and accept the required 13 input features.
+- Implemented and tested the `/predict/regression` endpoint.
+- Verified that the endpoint processed input data and returned predicted daily sales revenue in Kenyan Shillings.
+- Resolved a model compatibility issue by ensuring the regression model was saved using the same scikit-learn version specified in the project's requirements.
+- Tested the endpoint using Flask's test client and confirmed a successful HTTP 200 response.
 
-**Branch:** `main`  
-**Repository:** https://github.com/GraceChelangat/BI-ServingMLModels-C1  
-**Commit:** `b420a01` – Update regression model for sklearn 1.6.1 compatibility.
+**Test result:**
+```json
+{
+  "predicted_daily_sales_revenue_kes": 636875.52
+}
+```
 
-### What I Learned
+### 2. Branch and Commit References
 
-Through this lab, I learned how to deploy a trained machine learning model through a Flask API without retraining it. I gained practical experience with model loading using Joblib, handling JSON input and output, testing API endpoints, and managing dependencies.
+- **Repository:** [BI-ServingMLModels-C1](https://github.com/GraceChelangat/BI-ServingMLModels-C1)
+- **Branch:** https://github.com/GraceChelangat/BI-ServingMLModels-C1/tree/feature/regression-endpoint
+- **Commit:** [`b420a01` – Update regression model for sklearn 1.6.1 compatibility](https://github.com/GraceChelangat/BI-ServingMLModels-C1/commit/b420a01)
 
-I also learned the importance of maintaining consistent library versions between model training and deployment because version incompatibilities can prevent saved models from loading correctly. Additionally, I improved my Git skills through committing and managing changes in a shared repository while preserving other team members' contributions.            |
+### 3. What I Learned
+
+Through this lab, I gained practical experience in deploying machine learning models using Flask APIs without retraining the models.
+
+I learned how to:
+
+- Load trained machine learning models using Joblib.
+- Develop and test API endpoints that accept JSON input and return predictions in JSON format.
+- Manage Python dependencies and resolve scikit-learn version compatibility issues.
+- Use Flask's test client to verify API functionality.
+- Manage Git commits and collaborate within a shared repository while preserving other team members' contributions.
+
+**Key takeaway:** I learned that successful machine learning deployment involves more than training an accurate model. It also requires proper model integration, dependency management, API testing and version compatibility.
+committing and managing changes in a shared repository while preserving other team members' contributions.            |
 
 **Member 2:**
 
