@@ -8,8 +8,8 @@
 
 | **Details**                                                                                                                           | **Comment** |
 |:--------------------------------------------------------------------------------------------------------------------------------------|:------------|
-| **Student ID**                                                                                                                        |             |
-| **Name**                                                                                                                              |             |
+| **Student ID**                                                                                                                        | 170214            |
+| **Name**                                                                                                                              |  Grace Chelangat         |
 | **What part of the lab did you personally<br/>contribute to (provide a link to the<br/>branch(es)), and what did you learn from it?** |             |
 
 **Member 2:**
