@@ -10,7 +10,23 @@
 |:--------------------------------------------------------------------------------------------------------------------------------------|:------------|
 | **Student ID**                                                                                                                        | 170214            |
 | **Name**                                                                                                                              |  Grace Chelangat         |
-| **What part of the lab did you personally<br/>contribute to (provide a link to the<br/>branch(es)), and what did you learn from it?** |             |
+| **What part of the lab did you personally<br/>contribute to (provide a link to the<br/>branch(es)), and what did you learn from it?** | ### Personal Contribution
+
+I was responsible for **Member 1 – Regression Model Serving** in the Business Intelligence Serving ML Models lab.
+
+My contribution involved integrating the trained retail sales regression model into the shared Flask API. I ensured that the API could load the saved model, accept the required 13 input features, process the data and return a predicted daily sales revenue in Kenyan Shillings.
+
+I also tested the `/predict/regression` endpoint using Flask's test client and resolved a model compatibility issue by ensuring the regression model was saved using the same scikit-learn version specified in the project's requirements. The endpoint successfully returned HTTP 200 with a predicted daily sales revenue of KES 636,875.52.
+
+**Branch:** `main`  
+**Repository:** https://github.com/GraceChelangat/BI-ServingMLModels-C1  
+**Commit:** `b420a01` – Update regression model for sklearn 1.6.1 compatibility.
+
+### What I Learned
+
+Through this lab, I learned how to deploy a trained machine learning model through a Flask API without retraining it. I gained practical experience with model loading using Joblib, handling JSON input and output, testing API endpoints, and managing dependencies.
+
+I also learned the importance of maintaining consistent library versions between model training and deployment because version incompatibilities can prevent saved models from loading correctly. Additionally, I improved my Git skills through committing and managing changes in a shared repository while preserving other team members' contributions.            |
 
 **Member 2:**
 
