@@ -1,184 +1,263 @@
-# Lab Submission Instructions
+Serving ML Models: Student Details and Individual Member Contributions
+Name of the team on GitHub Classroom: C1
 
-## Student Details and Individual Member Contributions
+Member 1
+Details	Comment
+Student ID	170214
+Name	Grace Chelangat
+Branch	feature/regression-endpoint
+Contribution
+1. Retail Sales Regression API
 
-**Name of the team on GitHub Classroom:**
+Contribution
 
+Retail Sales Regression API
+Trained a Lasso regression pipeline (imputation, scaling, one-hot encoding, Lasso) in regressionC1.ipynb to predict a store's daily sales revenue in KES, and exported it to models/retail_sales_regressor.joblib. Added the POST /predict/regression endpoint to the shared api.py: Loads the saved model once at startup and never retrains it. Validates the request and returns a 400 for a missing or invalid JSON body, missing features, non-numeric values in numeric fields, and empty values in categorical fields. Accepts null for numeric fields because the pipeline imputes missing values. Converts the prediction back to KES with np.expm1, because the model was trained on log1p(daily_sales_revenue_kes). Deployed the combined API (classification and regression) to Render with Gunicorn. requirements.txt pins scikit-learn==1.6.1, and the Python version is pinned. The live service responds on / and lists both endpoints. Debugged deployment failures from the Render logs: a syntax error from a clipped line, a leftover requests import from the lab example, a missing flask-cors dependency, a malformed requirements.txt, and Render defaulting to Python 3.14. Endpoint
 
-## Member 1: Personal Contribution
+POST /predict/regression
 
-| **Detail** | **Information** |
-|---|---|
-| **Student ID** | 170214 |
-| **Name** | Grace Chelangat |
-| **Role** | Regression Model Serving |
+Request
 
-### 1. Personal Contribution
+json { "store_format": "Supermarket", "location_type": "Mall", "delivery_available": "Yes", "store_size_category": "Medium", "store_age_years": 5.0, "store_size_sqm": 450.0, "num_staff": 12, "promotions_active": 1, "footfall_count": 800.0, "loyalty_program_members": 150, "online_order_count": 40.0, "avg_basket_size_kes": 1200.0, "local_events_nearby": 0 }
 
-I was responsible for **Member 1 – Regression Model Serving** in the Business Intelligence Serving ML Models lab.
+Response { "endpoints": { "/predict/classification": "POST - financial distress classification", "/predict/regression": "POST - retail daily sales revenue (KES)" }, "message": "ML model serving API is running" }
 
-My main contribution involved integrating the trained retail sales regression model into the shared Flask API. Specifically, I:
+What I learned A saved model must be loaded under the same scikit-learn version it was saved with. My model was saved with 1.9.0 and the classification model with 1.6.1, so one api.py could not load both. I re-saved my model under 1.6.1 and pinned the version in requirements.txt. If the target was transformed during training (log1p), the API has to reverse it, otherwise predictions come back on the wrong scale. Deployment errors are best read from the server logs, because the API's own error messages are deliberately generic. A 405 Method Not Allowed means the route exists but was called with the wrong HTTP method.
 
-- Integrated the saved retail sales regression model into the Flask application.
-- Ensured the API could load the trained model and accept the required 13 input features.
-- Implemented and tested the `/predict/regression` endpoint.
-- Verified that the endpoint processed input data and returned predicted daily sales revenue in Kenyan Shillings.
-- Resolved a model compatibility issue by ensuring the regression model was saved using the same scikit-learn version specified in the project's requirements.
-- Tested the endpoint using Flask's test client and confirmed a successful HTTP 200 response.
+Member 2
+Details	Comment
+Student ID	168051
+Name	Joy Mbote
+Branch	classification-api
+Contribution
+2. Financial Distress Classification API
 
-**Test result:**
-```json
+Overview
+This API uses a saved machine learning pipeline to classify a company's financial condition as Healthy, Watch, or Distressed.
+
+The trained model is loaded from: models/distress_model_pipeline.joblib
+
+I implemented the classification endpoint using Flask REST API and loaded the saved model (distress_model_pipeline.joblib) to classify companies as Healthy, Watch, or Distressed. I added input validation, error handling, and automated tests using pytest. All six tests passed. I learned how to serve a trained machine learning model through a REST API, validate inputs, test endpoints, and manage code using Git.
+
+Member 3
+Details	Comment
+Student ID	166567
+Name	Nicole Wachira
+Branch	feature/clustering-endpoint
+Contribution
+1. E-commerce Customer Clustering API
+
+Used the K-Means model our group trained in the clustering lab (ecommerce_customer_clustering.ipynb). It was saved as a bundle (models/ecommerce_clustering_bundle.joblib) holding the median imputer, StandardScaler, K-Means model (5 clusters), the feature list and the segment names.
+Added the POST /predict/clustering endpoint to the shared api.py:
+Loads the saved bundle once at startup, using a path built from BASE_DIR, and never retrains it.
+Applies the same steps as training (impute, scale, predict) with the four features in training order.
+Returns the cluster number and its segment name.
+Validates the request and returns a 400 for a non-JSON body, missing features and non-numeric values.
+Fixed the local environment: the bundle was saved with scikit-learn 1.6.1, which has no package for Python 3.14, so I created a Python 3.12 virtual environment and installed the team's pinned requirements.txt.
+Tested with Postman and curl: an active customer returned cluster 1 and a dormant customer returned cluster 2, matching the notebook, and the error cases returned 400.
+Endpoint
+
+POST /predict/clustering
+
+Request
+
 {
-  "predicted_daily_sales_revenue_kes": 636875.52
+  "recency_days": 5,
+  "frequency_per_year": 28,
+  "avg_order_value_kes": 9500,
+  "num_categories_purchased": 6
 }
-```
+Response
 
-### 2. Branch and Commit References
+{
+  "predicted_cluster": 1,
+  "segment_name": "High-Frequency Big Spenders"
+}
+Error response (missing field, 400)
 
-- **Repository:** [BI-ServingMLModels-C1](https://github.com/GraceChelangat/BI-ServingMLModels-C1)
-- **Branch:** https://github.com/GraceChelangat/BI-ServingMLModels-C1/tree/feature/regression-endpoint
-- **Commit:** [`b420a01` – Update regression model for sklearn 1.6.1 compatibility](https://github.com/GraceChelangat/BI-ServingMLModels-C1/commit/b420a01)
+{
+  "error": "Missing required features.",
+  "missing_features": ["frequency_per_year", "avg_order_value_kes", "num_categories_purchased"]
+}
+What I learned
 
-### 3. What I Learned
+New data must go through exactly the same preprocessing and feature order as the training data. Otherwise the model still returns a cluster number, but a wrong one, with no error.
+A saved model must be loaded under the same scikit-learn version it was saved with. Our bundle was saved with 1.6.1. A newer version loaded the file but crashed at prediction time, so I used a matching environment.
+Models are loaded once at startup and never retrained inside the API. This is faster and keeps predictions consistent.
+Clear error messages (400) and documentation matter, because the API is how other people use the model.
+A 405 Method Not Allowed means the route exists but was called with the wrong HTTP method (opening a POST route in the browser sends GET).
+Member 4
+Details	Comment
+Student ID	160819
+Name	Alfred Njaku
+Branch	feature/association-rules-endpoint
+Contribution
+4. Streaming Series Association Rules Recommender API
 
-Through this lab, I gained practical experience in deploying machine learning models using Flask APIs without retraining the models.
+Used the 21 cleaned association rules our group saved in the Association Rule Mining lab (AssociationRuleMining-C1/outputs/clean_association_rules.pkl, mined with min support 0.02, min confidence 0.30, min lift 2.0) and the show lookup table (outputs/show_lookup.csv).
+Wrote scripts/save_association_bundle.py, which loads those saved rules (without re-mining them) and saves them with joblib as models/association_rules_bundle.joblib, the same format the other members use. The bundle holds the rules, the show_id → show name lookup and the mining thresholds. The rules are stored as plain Python objects (frozensets and floats, not a DataFrame), so loading them does not depend on the pandas version on the server.
+Added the POST /recommend/association endpoint to the shared api.py:
+Loads the saved bundle once at startup with joblib.load, using a path built from BASE_DIR, and never re-mines the rules.
+Accepts the shows a viewer has watched, as show names or show IDs, in any letter case.
+A rule matches when its whole antecedent is contained in the viewer's basket.
+Removes shows the viewer has already watched, keeps one entry per recommended show (its strongest rule), and ranks by confidence, then lift, then support.
+Returns an empty list with a clear message when no rule matches.
+Returns a 400 for a non-JSON body, a missing or empty items list, unknown shows (listing the valid ones) and an invalid top_n.
+Added tests/test_association.py (10 pytest tests) covering a match, name/ID equivalence, top_n, no match, unknown shows and bad requests.
+Endpoint
 
-I learned how to:
+POST /recommend/association
 
-- Load trained machine learning models using Joblib.
-- Develop and test API endpoints that accept JSON input and return predictions in JSON format.
-- Manage Python dependencies and resolve scikit-learn version compatibility issues.
-- Use Flask's test client to verify API functionality.
-- Manage Git commits and collaborate within a shared repository while preserving other team members' contributions.
+Field	Type	Required	Description
+items	list of strings	Yes	Shows already watched, by name ("Crime City") or ID ("S01")
+top_n	integer	No (default 5)	Maximum number of recommendations
+Request
 
-**Key takeaway:** I learned that successful machine learning deployment involves more than training an accurate model. It also requires proper model integration, dependency management, API testing and version compatibility.
-committing and managing changes in a shared repository while preserving other team members' contributions.            |
+{
+  "items": ["Galactic Wars", "Time Anomaly"]
+}
+Response (200)
 
-**Member 2:**
+{
+  "input_items": ["Galactic Wars", "Time Anomaly"],
+  "recommendations": [
+    {
+      "show_id": "S06",
+      "show_name": "Space Frontier",
+      "because_you_watched": ["Galactic Wars", "Time Anomaly"],
+      "confidence": 0.7681,
+      "lift": 4.844,
+      "support": 0.0303
+    }
+  ]
+}
+No matching rule (200)
 
-| **Details**                                                                                                                                       | **Comment**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-|:--------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Student ID**                                                                                                                                    | 168051                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **Name**                                                                                                                                          | Joy Mbote                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
-| **What part of the lab did you personally<br/>contribute to (provide a link to the<br/>branch(es)), and what did you learn from it?**             | I implemented the classification endpoint using Flask REST API and loaded the saved model (distress_model_pipeline.joblib) to classify companies as Healthy, Watch, or Distressed. I added input validation, error handling, and automated tests using pytest. All six tests passed. <br/>I learned how to serve a trained machine learning model through a REST API, validate inputs, test endpoints, and manage code using Git. <br/>Here is a link to the branch https://github.com/GraceChelangat/BI-ServingMLModels-C1/tree/classification-api |
+{
+  "input_items": ["Toon Town"],
+  "recommendations": [],
+  "message": "No recommendations found: none of the saved association rules match these items with a show you have not already watched."
+}
+Unknown show (400)
 
-**Member 3:**
+{
+  "error": "Unknown show(s) in 'items'.",
+  "unknown_items": ["Not A Real Show"],
+  "valid_shows": ["Cooking Masters", "Crime City", "..."]
+}
+cURL
 
-| **Details**                                                                                                                           | **Comment** |
-|:--------------------------------------------------------------------------------------------------------------------------------------|:------------|
-| **Student ID**                                                                                                                        |             |
-| **Name**                                                                                                                              |             |
-| **What part of the lab did you personally<br/>contribute to (provide a link to the<br/>branch(es)), and what did you learn from it?** |             |
+curl -X POST http://127.0.0.1:5000/recommend/association \
+  -H "Content-Type: application/json" \
+  -d '{"items": ["Crime City", "The Detective"]}'
+What I learned
 
-**Member 4:**
+An association rule recommender has no "model" to predict with; the saved rules are the model, so serving it means loading the rules and matching them, not retraining.
+A rule only applies when its whole antecedent is in the basket, and shows the user has already watched should not be recommended back.
+Several rules can point to the same show, so results need de-duplicating before they reach the user.
+"No recommendation" is a valid answer and should return 200 with a message, while bad input should return 400.
+A saved file is tied to the library versions it was saved with. Keeping the bundle to plain Python objects avoids the pandas and scikit-learn version problems other members hit.
+Member 5
+Details	Comment
+Student ID	169302
+Name	Anastacia Muya
+Branch	feature/docker-nginx https://github.com/GraceChelangat/BI-ServingMLModels-C1/tree/feature/docker-nginx
+Contribution 5. Docker, Gunicorn and Nginx Deployment
 
-| **Details**                                                                                                                           | **Comment** |
-|:--------------------------------------------------------------------------------------------------------------------------------------|:------------|
-| **Student ID**                                                                                                                        |             |
-| **Name**                                                                                                                              |             |
-| **What part of the lab did you personally<br/>contribute to (provide a link to the<br/>branch(es)), and what did you learn from it?** |             |
+Wrote the Dockerfile on a python:3.11-slim base. It installs the packages from requirements.txt, copies the project (including the models/ folder) into the image, and starts the API with Gunicorn: gunicorn --bind 0.0.0.0:5000 --workers 2 --timeout 120 api:app. The Flask development server is not used.
+Wrote nginx/nginx.conf, a reverse proxy that forwards all requests to the API container (proxy_pass http://api:5000) and passes on the Host and client IP headers.
+Wrote docker-compose.yml with two services. api is built from the Dockerfile and only exposed inside the Docker network. nginx uses the nginx:stable image and is published on port 8080. The API can only be reached through Nginx.
+Added a .dockerignore that leaves out .git, caches and virtual environments but keeps models/, so the saved .joblib files are inside the container.
+Did not change api.py. The same api.py runs locally, in Docker and on Render.
+Verified the build: the image built successfully, and the startup logs show Starting gunicorn, Listening at: http://0.0.0.0:5000, Using worker: sync and two workers booting. Both containers were created and started.
+Verified the models are inside the container: all model files loaded at startup without the RuntimeError that api.py raises when a file is missing, and I loaded the clustering and classification files from inside the running container to read their feature names and categories.
+Tested through the Nginx port (8080), not the Flask server. Every response carries Server: nginx/1.30.6. Endpoints tested: clustering, recommender, classification and regression.
+Added a simple HTML/CSS/JavaScript demo page (frontend/index.html) served by the same Nginx container at http://localhost:8080/demo/. It calls the API with relative paths (/predict/clustering and /recommend/association) and shows an error message when an input is missing. api.py was not changed. How to run
+Prerequisite: Docker Desktop installed and running.
 
-**Member 5:**
+docker compose up --build
+Check both containers are up:
 
-| **Details**                                                                                                                           | **Comment**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|:--------------------------------------------------------------------------------------------------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Student ID**                                                                                                                        | 169302                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| **Name**                                                                                                                              | Anastacia Muya                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| **What part of the lab did you personally<br/>contribute to (provide a link to the<br/>branch(es)), and what did you learn from it?** | As Member 5, I containerized the group’s Flask API. I wrote a Dockerfile that serves it with Gunicorn, an Nginx reverse proxy config, and a Docker Compose file that runs both together, with the API reachable only through Nginx on port 8080. I kept the saved model files inside the image and tested the clustering, recommender and classification endpoints through the proxy, with Server: nginx in the responses. I also built a HTML demo page served through the same Nginx. link to branch: https://github.com/GraceChelangat/BI-ServingMLModels-C1/tree/feature/docker-nginx       |
+docker compose ps
+Test through Nginx:
 
-## Chosen Level of Difficulty
+curl -i http://localhost:8080/
+Example response:
 
-**Specify the chosen level of difficulty** (baseline, intermediate, or advanced): Advanced Level
+HTTP/1.1 200 OK
+Server: nginx/1.30.6
+Content-Type: application/json
 
-## Video Demonstration
+{"endpoint":"/predict/classification","message":"Financial Distress Classification API is running","method":"POST"}
+Example model request through Nginx:
 
-Submit the link to a short video (**not more than 10 minutes**) demonstrating your complete solution at whichever difficulty level you chose. Please ensure that the lecturer has rights to view the video.
+curl -i -X POST http://localhost:8080/predict/clustering \
+  -H "Content-Type: application/json" \
+  -d '{"recency_days": 300, "frequency_per_year": 1, "avg_order_value_kes": 500, "num_categories_purchased": 1}'
+Example response (200):
 
-At minimum, the video must show, in one continuous walkthrough:
+{"predicted_cluster": 2, "segment_name": "Dormant Low-Value Accounts"}
+Stop everything with:
 
-1. `api.py` running **locally**, with a live request/response against each model endpoint you implemented.
-2. If you attempted the Intermediate or Advanced tier: the same API running inside its **Gunicorn + Nginx Docker container**, reached through the reverse proxy, not the Flask development server.
-3. If you attempted the Advanced tier: your **Hugging Face Space** and your **Streamlit Community Cloud app**, each opened live in a browser, with at least one prediction made on each tab, and your **Render**-hosted API answering a request from Postman or `curl`.
+docker compose down
+Files added
 
-**Why this matters for grading:** free-tier public deployments are not guaranteed to still exist by the time this is graded. The video is treated as the authoritative record of what was actually working at submission time; a broken link at grading time is not penalized if the video clearly shows that deployment working.
+File	Purpose
+Dockerfile	Builds the API image and starts Gunicorn
+docker-compose.yml	Runs the api and nginx containers together
+nginx/nginx.conf	Reverse proxy settings
+.dockerignore	Keeps unwanted files out of the image but keeps models/
+frontend/index.html	Demo page for the API, with missing-input error handling
+Troubleshooting
 
-Note that you are required to submit the link to the video and NOT the video itself. The video should NOT be uploaded to your repository—that would be a misuse of GitHub.
+502 Bad Gateway: the API container crashed. Run docker compose logs api to see the error.
+Port 8080 already in use: change "8080:80" to "8081:80" in docker-compose.yml and use port 8081.
+"Cannot connect to the Docker daemon": Docker Desktop is not running. Open it and wait until it says running.
+Model not found in the container: the model file is missing from models/ on GitHub, or .dockerignore excludes it.
+If the first build is slow, that is normal. Later builds use the cache.
+What I learned
 
-**Link to the video:**
+Gunicorn is a production server, while app.run() is only for development. Gunicorn finds the app through the module:variable name (api:app).
+Nginx is a reverse proxy: clients talk to Nginx, and Nginx talks to the API. Inside Docker Compose, containers reach each other by service name, which is why it forwards to http://api:5000.
+expose keeps a port private to the Docker network, while ports publishes it to the host. Only Nginx is published.
+Saved model files must be inside the image, so .dockerignore must not exclude models/, and the code must build paths from BASE_DIR instead of using absolute paths from a laptop.
+A saved model is tied to the library versions it was created with, so requirements.txt needs compatible versions.
+A running container is only proof if it answers real requests, so I tested through port 8080 and checked the logs and the Server: nginx header.
+Reading a trained pipeline shows which inputs it accepts. For example, credit_rating_band only accepts Investment Grade, Speculative or High Risk, so the exact values matter when writing test requests.
+Requirements Install the required packages:
 
-## Public URLs
+python -m pip install -r requirements.txt
+Member 6
+Details	Comment
+Student ID	163604
+Name	Urvi Patel
+Branch	render-deployment
+Contribution
+6. Render Deployment
 
-Fill in only the rows that apply to your chosen difficulty level (see Part C below). Leave a row blank if your tier does not require that deployment target.
+I deployed the team's unmodified api.py to Render as a Web Service, using the Gunicorn start command gunicorn api:app --bind 0.0.0.0:$PORT and the build command pip install -r requirements.txt.
+Live URL: https://bi-servingmlmodels-c1.onrender.com
+The root link only shows a health message. The four endpoints are POST routes, so test them with curl or Postman, for example: curl -X POST https://bi-servingmlmodels-c1.onrender.com/predict/clustering -H "Content-Type: application/json" -d '{"recency_days":5,"frequency_per_year":28,"avg_order_value_kes":9500,"num_categories_purchased":6}'
+I tested all four endpoints from outside my computer with curl: /predict/regression, /predict/classification, /predict/clustering and /recommend/association. All four return correct predictions.
+While testing, I found that the clustering and regression code had been mixed up in a merge, and I reported it to the team so it could be fixed.
+I read the Render logs and found that the regression model file had been saved with scikit-learn 1.9.0, while Render uses 1.6.1. I reported it, and the model was saved again with the right version.
+I recorded the local, Docker + Nginx and Render demonstrations, and compiled them together with Noella's clip into one video, trimming it to fit the 10-minute limit.
+What I learned
+The start command must match the file name. api:app means file api.py, object app.
+A saved model only loads properly with the same library versions it was saved with.
+The 500 error message is generic, so the real cause is found in the Render logs.
+The free tier sleeps after about 15 minutes, so I woke it up before recording.
+How to record my screen, then trim and join several clips into one video with Clipchamp.
+Chosen Level of Difficulty
+Intermediate
 
-| **Deployment target**                             | **URL** |
-|:--------------------------------------------------|:--------|
-| Render (the full `api.py`, all endpoints)         |         |
-| Hugging Face Space (Gradio, one tab per model)    |         |
-| Streamlit Community Cloud app (one tab per model) |         |
+Video Demonstration
+Link to the video: https://drive.google.com/file/d/1h9I9Yt7Fj3i18cP_5lDt0IdRb1hoajH_/view?usp=sharing
 
----
+Video order: 1) Local (Flask dev server, port 5000), 2) Docker + Nginx (port 8080), 3) Render (bi-servingmlmodels-c1.onrender.com), 4)Web page demo: HTML, CSS and vanilla JavaScript, served through Nginx.
 
-## Scenario
-
-Across earlier labs, **your group** was assigned its own dataset and trained your own models for four distinct tasks:
-
-1. A **regression** task
-2. A **classification** task
-3. A **k-Means clustering** task
-4. An **Apriori association-rule mining** task
-
-Different groups worked with different datasets and, in some cases, different algorithms for each task -- there is no single shared reference repository or model list for the whole class. Wherever this document refers to "your regressor," "your classifier," "your clustering model," or "your recommender," it means **whichever model your own group already trained and saved for that task**, not a specific named algorithm.
-
-You are now required to build a single Flask API (`api.py`) that serves **your own group's four models**, loaded from disk (never retrained inside `api.py`), and to demonstrate that API running correctly across a growing number of deployment surfaces depending on the difficulty tier you choose.
-
-### Part A: Regression and Classification
-
-- Locate the trained regression and classification model files your group produced and saved in your earlier labs on Regression and Classification.
-- Update [api.py](api.py) to include end-points that load these two models from disk and serve predictions from them.
-
-### Part B: Clustering and Association Rule Mining
-
-- Locate the trained clustering model and the association rules your group produced and saved in your earlier labs on Clustering and Association Rule Mining.
-- Update [api.py](api.py) to include end-points that:
-  - Load the clustering model from disk and predict which cluster a new client belongs to
-  - Load the association rules from disk and recommend products based on them
-
-**Note 1:** **`api.py` is NOT production-grade as it is.** It is only meant for demonstration purposes. Scalability and security must be taken into consideration before deploying an API in a production environment.
-
-**Note 2:** Some students often treat the API as an afterthought, focusing only on training ML models. In practice, **the API is the product** -- it is how others interact with your model. The "hidden" learning here is that the delivery mechanism (API design, usability, error handling, and even documentation) often matters more to stakeholders in the industry than the models themselves.
-
-### Part C: Deployment Breadth (Read Before Choosing Your Tier)
-
-All three tiers below ask you to serve **the same four models** (your regressor, your classifier, your clustering model, your recommender) from **one, unmodified `api.py`**. The model files and the Flask routes do not change between tiers -- only how many different places that one working API is shown to run correctly.
-
-**Baseline (Required):**
-
-- Update `api.py` to serve **at least three of your four** models, loaded from disk.
-- Run and demonstrate `api.py` **locally** with Flask's development server, with a successful request against each implemented endpoint.
-
-**Intermediate (Recommended):**
-
-- Update `api.py` to serve **all four** of your models, loaded from disk.
-- Dockerize your Flask API using **Gunicorn**, and place it behind an **Nginx** reverse proxy (see the reverse-proxy lab notes for the full Docker Compose setup).
-- Deploy the same, unmodified `api.py` to **Render**, and demonstrate a real request against it from outside your own machine (cURL or Postman).
-
-**Advanced (Optional):**
-
-- Everything required for Intermediate, plus:
-  - Create a web page (or pages) using Basic HTML, CSS, and Vanilla JavaScript that demonstrates the use of the API
-  - Implement basic error handling (e.g., missing inputs)
-  - Build **one Gradio app with a tab per model** (all four of your models) and publish it as a **Hugging Face Space**
-  - Build **one Streamlit app with a tab per model**, covering the same four models, and publish it on **Streamlit Community Cloud**
-  - All deployment targets -- local, Dockerized/Nginx, Render, Hugging Face, and Streamlit -- must serve models loaded **from the same trained artifacts**; retraining different models per platform does not satisfy this requirement
-
-Why this is production-relevant beyond the model itself:
-
-- **Portability:** the same container image and the same trained artifacts run unmodified on your laptop, inside Docker, and on a managed cloud host.
-- **Consistency:** no "but it works on my machine" gap between what you demo locally and what a domain expert sees on a public URL.
-- **Separation of concerns:** a REST API (Render), a no-code demo UI (Hugging Face/Streamlit), and your own frontend (the Advanced-tier HTML pages) are three different ways of exposing the *same* underlying models to three different kinds of user -- a developer integrating your API, a non-technical domain expert validating it, and an end customer.
-
----
-
-## Marking Guide
-
-Refer to the marking guide available here: [lab_submission_marking_guide.md](lab_submission_marking_guide.md)
+Public URLs
+Deployment target	URL
+Render (the full api.py, all endpoints)	https://bi-servingmlmodels-c1.onrender.com (base URL; the root only shows a health message. Live POST endpoints: /predict/regression, /predict/classification, /predict/clustering, /recommend/association. See the video, Render section.)
+Hugging Face Space (Gradio, one tab per model)	
+Streamlit Community Cloud app (one tab per model)	
