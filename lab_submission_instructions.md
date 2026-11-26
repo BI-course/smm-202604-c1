@@ -255,13 +255,20 @@ docker compose down
 
 ## Chosen Level of Difficulty
 
-**Intermediate** (plus the optional HTML/CSS/JavaScript web page demo)
+**Advanced** 
 
 ## Video Demonstration
 
 **Link to the video:** https://drive.google.com/file/d/1h9I9Yt7Fj3i18cP_5lDt0IdRb1hoajH_/view?usp=sharing
 
-Video order: 1) Local (Flask dev server, port 5000), 2) Docker + Nginx (port 8080), 3) Render (bi-servingmlmodels-c1.onrender.com), 4) Web page demo: HTML, CSS and vanilla JavaScript, served through Nginx (optional bonus).
+Video order: 
+1) Local (Flask dev server, port 5000)
+2) Docker + Nginx (port 8080)
+3) Render (bi-servingmlmodels-c1.onrender.com)
+4) Web page demo: HTML, CSS and vanilla JavaScript, served through Nginx
+5) Hugging Face Space (Gradio, one tab per model)
+6) Streamlit Community Cloud app (one tab per model)
+
 
 ## Public URLs
 
