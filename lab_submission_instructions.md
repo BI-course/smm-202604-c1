@@ -279,7 +279,7 @@ docker compose down
 
 ## Video Demonstration
 
-**Link to the video:** https://drive.google.com/file/d/1h9I9Yt7Fj3i18cP_5lDt0IdRb1hoajH_/view?usp=sharing
+**Link to the video:** https://drive.google.com/file/d/12CgU8U7Al_TYvrkn589DYl6TqKpZNjOc/view?usp=sharing
 
 Video order: 
 1) Local (Flask dev server, port 5000)
